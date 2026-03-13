@@ -7,8 +7,13 @@ struct HomeData {}
 
 #[get("/")]
 pub async fn home(hb: web::Data<Handlebars<'_>>) -> impl Responder {
-    let body = hb.render("index.html", &HomeData {}).unwrap();
-    HttpResponse::Ok().body(body)
+    match hb.render("index", &HomeData {}) {
+        Ok(body) => HttpResponse::Ok().body(body),
+        Err(e) => {
+            eprintln!("Render error: {:?}", e);
+            HttpResponse::InternalServerError().body("Template error")
+        }
+    }
 }
 
 #[get("/about")]
