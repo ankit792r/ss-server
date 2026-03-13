@@ -1,0 +1,11 @@
+[package]
+name = "ss-server"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+uuid = { version = "1.22.0", features = ["v4"] }
+rand = { version = "0.10.0" }
+actix-web = "4"
+handlebars = { version = "6.4.0", features = [ "dir_source" ]} 
+serde = { version = "1.0.228", features = [ "derive" ] }
