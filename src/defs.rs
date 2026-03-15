@@ -1,55 +1,37 @@
 use std::time::SystemTime;
 
+use mongodb::bson::oid::ObjectId;
 use rand::RngExt;
-use uuid::Uuid;
+use serde::{Deserialize, Serialize};
 
 /// Basic String Object type
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StringObject {
-    id: Uuid,
-    key: String,
-    content: String,
-    created_at: SystemTime,
-    expires_at: SystemTime,
-    is_deleted: bool,
-}
-
-impl StringObject {
-    pub fn new_string_object(
-        self,
-        content: String,
-        expires_at: SystemTime,
-        key: String,
-    ) -> Result<Self, String> {
-        let uuid = Uuid::new_v4();
-
-        Ok(StringObject {
-            id: uuid,
-            key,
-            content,
-            expires_at,
-            created_at: SystemTime::now(),
-            is_deleted: false,
-        })
-    }
+    #[serde(rename = "_id")]
+    pub id: ObjectId,
+    pub key: String,
+    pub content: String,
+    pub created_at: SystemTime,
+    pub expires_at: SystemTime,
+    pub is_deleted: bool,
 }
 
 /// Key utils
-pub struct KeyUtils {
-    rng: rand::rngs::ThreadRng,
-}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct KeyUtils {}
 
 impl KeyUtils {
     pub fn new() -> Self {
-        KeyUtils { rng: rand::rng() }
+        Self {}
     }
 
-    pub fn generate_key(&mut self) -> String {
-        let code: u32 = self.rng.random_range(0..1_000_000);
+    pub fn generate_key(&self) -> String {
+        let code: u32 = rand::rng().random_range(0..1_000_000);
         format!("{:06}", code)
     }
 
-    pub fn generate_uniq_key(&mut self) -> String {
+    pub fn generate_uniq_key(&self) -> String {
         // TODO: add db check
         self.generate_key()
     }

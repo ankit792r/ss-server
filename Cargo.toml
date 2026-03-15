@@ -9,3 +9,4 @@ rand = { version = "0.10.0" }
 actix-web = "4"
 handlebars = { version = "6.4.0", features = [ "dir_source" ]} 
 serde = { version = "1.0.228", features = [ "derive" ] }
+mongodb = "3"
