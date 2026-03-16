@@ -1,5 +1,4 @@
-use std::time::SystemTime;
-
+use chrono::{DateTime, Utc};
 use mongodb::bson::oid::ObjectId;
 use rand::RngExt;
 use serde::{Deserialize, Serialize};
@@ -11,28 +10,13 @@ pub struct StringObject {
     pub id: ObjectId,
     pub key: String,
     pub content: String,
-    pub created_at: SystemTime,
-    pub expires_at: SystemTime,
+    pub created_at: DateTime<Utc>,
+    pub expires_at: DateTime<Utc>,
     pub is_deleted: bool,
 }
 
-/// Key utils
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct KeyUtils {}
-
-impl KeyUtils {
-    pub fn new() -> Self {
-        Self {}
-    }
-
-    pub fn generate_key(&self) -> String {
-        let code: u32 = rand::rng().random_range(0..1_000_000);
-        format!("{:06}", code)
-    }
-
-    pub fn generate_uniq_key(&self) -> String {
-        // TODO: add db check
-        self.generate_key()
-    }
+/// Generate new un-uniqe key
+pub fn generate_key() -> String {
+    let code: u32 = rand::rng().random_range(0..1_000_000);
+    format!("{:06}", code)
 }

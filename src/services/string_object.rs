@@ -1,24 +1,36 @@
 use std::time::{Duration, SystemTime};
 
+use chrono::Utc;
 use mongodb::{
     Collection,
     bson::{doc, oid::ObjectId},
 };
 
-use crate::defs::{KeyUtils, StringObject};
+use crate::defs::{StringObject, generate_key};
 
 #[derive(Clone)]
 pub struct StringObjectService {
-    key_utils: KeyUtils,
     collection: Collection<StringObject>,
 }
 
 impl StringObjectService {
     /// Creates a new [`StringObjectService`].
-    pub fn new(collection: Collection<StringObject>, key_utils: KeyUtils) -> Self {
-        Self {
-            collection,
-            key_utils,
+    pub fn new(collection: Collection<StringObject>) -> Self {
+        Self { collection }
+    }
+
+    async fn generate_key(&self) -> String {
+        loop {
+            let key = generate_key();
+
+            match self.check_object_exists_by_key(&key).await {
+                Ok(false) => return key,
+                Ok(true) => continue,
+                Err(e) => {
+                    eprintln!("Failed to check unique key: {}", e);
+                    return String::new();
+                }
+            }
         }
     }
 
@@ -29,22 +41,20 @@ impl StringObjectService {
     returns key of new string object
     */
     pub async fn create_new_object(&self, raw_content: String) -> Result<String, String> {
-        let now = SystemTime::now();
+        let now = Utc::now();
         let ten_min = Duration::from_mins(10);
         let future_time = now + ten_min;
 
         let new_str_obj = StringObject {
             id: ObjectId::new(),
-            key: self.key_utils.generate_uniq_key(),
+            key: self.generate_key().await,
             content: raw_content,
             expires_at: future_time,
-            created_at: SystemTime::now(),
+            created_at: now,
             is_deleted: false,
         };
 
         let res = self.collection.insert_one(&new_str_obj).await;
-
-        println!("{:?}", res);
 
         match res {
             Err(e) => Err(String::from(format!("Failed to create new Object {:?}", e))),
@@ -101,7 +111,7 @@ impl StringObjectService {
         }
     }
 
-    pub async fn check_object_exists_by_key(&self, key: String) -> Result<bool, String> {
+    pub async fn check_object_exists_by_key(&self, key: &String) -> Result<bool, String> {
         let filter = doc! { "key": key };
         let result = self.collection.count_documents(filter).await;
 
@@ -131,5 +141,14 @@ impl StringObjectService {
             }
             Err(e) => Err(String::from(format!("Failed to delete object: {:?}", e))),
         }
+    }
+
+    pub async fn list_objects(&self) -> Result<Vec<StringObject>, String> {
+        let filter = doc! {};
+        let result_cursor = self.collection.find(filter).await;
+
+        let data: Vec<StringObject> = vec![];
+
+        Ok(data)
     }
 }
