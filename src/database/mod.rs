@@ -1,1 +1,1 @@
-mod mongo_factory;
+pub mod factory;
