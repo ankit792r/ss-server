@@ -7,7 +7,8 @@ mod handlers;
 mod services;
 
 use crate::{
-    defs::{KeyUtils, StringObject},
+    database::factory::connect_mongo_db,
+    defs::StringObject,
     handlers::{
         home::{about, home},
         share::{object_get, object_get_form, object_post, object_post_form, share},
@@ -26,29 +27,14 @@ async fn main() -> std::io::Result<()> {
         .expect("Failed to register handlebars");
     let hb_ref = web::Data::new(handlebars);
 
-    // let uri = std::env::var("MONGODB_URI")
-    //     .unwrap_or_else(|_| "mongodb://root:root@localhost:27017/string-share".into());
-    //
-    // let mongo_client = Client::with_uri_str(uri)
-    //     .await
-    //     .expect("Failed to connect to MongoDB");
-    //
-    // // connection check
-    // mongo_client
-    //     .database("admin")
-    //     .run_command(doc! { "ping": 1 })
-    //     .await
-    //     .expect("Failed to authenticate with MongoDB");
-
-    let mongo_client = connect_db();
+    let mongo_client = connect_mongo_db()
+        .await
+        .expect("Failed to connect with mongodb");
 
     let ss_db = mongo_client.database("string-share");
     let string_collection = ss_db.collection::<StringObject>("string_objects");
 
-    let key_utils = KeyUtils::new();
-
-    let string_object_service =
-        web::Data::new(StringObjectService::new(string_collection, key_utils));
+    let string_object_service = web::Data::new(StringObjectService::new(string_collection));
 
     HttpServer::new(move || {
         App::new()
