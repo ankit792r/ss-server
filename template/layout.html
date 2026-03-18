@@ -1,24 +1,43 @@
 <!doctype html>
 <html lang="en">
-  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ClipShare - Home</title>
+    <title>KeyDrop - Share Once, Secure Forever</title>
     <link
       rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
     />
     <style>
-      .content-wrapper {
-        padding: 2em;
-        max-width: 800px;
-        margin: auto;
-      }
       .hero {
-        background: #f8f9fa;
-        padding: 3em;
-        border-radius: 8px;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        align-items: center;
+      }
+
+      @media (min-width: 768px) {
+        .hero {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      .hero img {
+        width: 100%;
+        border-radius: 12px;
+      }
+
+      .stats {
+        margin-top: 3rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1.5rem;
         text-align: center;
+      }
+
+      .stat-box {
+        padding: 1.5rem;
+        border: 1px solid #ddd;
+        border-radius: 10px;
       }
     </style>
   </head>

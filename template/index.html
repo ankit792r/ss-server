@@ -1,7 +1,89 @@
 {{#> layout}}
-<div class="hero">
-  <h1>Share your Clipboard</h1>
-  <p>Instantly share text, code snippets, or URLs across devices.</p>
-  <a href="/share" class="pure-button pure-button-primary">Get Started</a>
-</div>
+<main class="container">
+  <section class="hero">
+    <div>
+      <h1>Securely Share Text with a One-Time Key 🔐</h1>
+      <p>
+        KeyDrop lets you send text, code snippets, passwords, or notes securely
+        using a temporary 6-digit key. No login. No storage. Just simple and
+        fast sharing.
+      </p>
+
+      {{#if error}}
+      <article style="background-color: #ffdddd">
+        <strong>Error:</strong> {{error}}
+      </article>
+      {{/if}} {{#if success}}
+      <article style="background-color: #ddffdd">
+        <strong>Success:</strong> {{success}}
+      </article>
+      {{/if}}
+
+      <form method="post" action="/">
+        <label>Enter Text to Share</label>
+        <textarea
+          placeholder="Paste or type your text here..."
+          rows="4"
+          name="object"
+        >
+{{object}}</textarea
+        >
+
+        <label>Enter Key to Retrieve</label>
+        <input
+          type="text"
+          name="key"
+          value="{{key}}"
+          placeholder="Enter 6-digit key"
+        />
+
+        <button type="submit">Send / Retrieve</button>
+      </form>
+    </div>
+
+    <div>
+      <img
+        src="https://images.unsplash.com/photo-1555949963-aa79dcee981c"
+        alt="Sharing Illustration"
+      />
+    </div>
+  </section>
+
+  <section class="stats">
+    <div class="stat-box">
+      <h2>12,540+</h2>
+      <p>Texts Shared</p>
+    </div>
+
+    <div class="stat-box">
+      <h2>8,230+</h2>
+      <p>Keys Generated</p>
+    </div>
+
+    <div class="stat-box">
+      <h2>99.9%</h2>
+      <p>Secure Transfers</p>
+    </div>
+
+    <div class="stat-box">
+      <h2>24/7</h2>
+      <p>Availability</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Why KeyDrop?</h2>
+    <p>
+      In a world where sharing sensitive information is common, KeyDrop provides
+      a lightweight, privacy-first solution. Whether you're a developer sharing
+      code, a student sending notes, or a professional transferring credentials
+      — KeyDrop ensures your data is accessed only once.
+    </p>
+
+    <p>
+      No clutter, no accounts, no tracking — just pure functionality built for
+      speed and security.
+    </p>
+  </section>
+</main>
 {{/layout}}
