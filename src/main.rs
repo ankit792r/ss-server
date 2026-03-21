@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
-use actix_web::{App, HttpServer, web};
+use actix_web::{App, HttpServer, middleware::Logger, web};
+use env_logger::Env;
 use handlebars::{DirectorySourceOptions, Handlebars};
 
 mod defs;
@@ -25,6 +26,8 @@ async fn main() -> std::io::Result<()> {
 
     let data_store: DynStore = Arc::new(InMemoryStore::new());
 
+    env_logger::init_from_env(Env::default().default_filter_or("info"));
+
     HttpServer::new(move || {
         App::new()
             .service(actix_files::Files::new("/static", "statics"))
@@ -36,6 +39,7 @@ async fn main() -> std::io::Result<()> {
             .service(count)
             .service(send_object)
             .service(retrieve_object)
+            .wrap(Logger::default())
     })
     .bind(("127.0.0.1", 4096))?
     .run()

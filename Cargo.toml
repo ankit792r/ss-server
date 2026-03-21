@@ -1,5 +1,5 @@
 [package]
-name = "ss-server"
+name = "key-drop"
 version = "0.1.0"
 edition = "2024"
 
@@ -12,3 +12,4 @@ anyhow = "1.0.102"
 redis = "1.0.5"
 serde = { version = "1.0.228", features = ["derive"] }
 actix-files = "0.6.10"
+env_logger = "0.11.9"
