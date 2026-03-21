@@ -1,114 +1,97 @@
-use crate::defs::{Action, DynStore, FormData};
-use actix_web::{HttpResponse, Responder, get, post, web};
+use crate::defs::DynStore;
+use actix_web::{
+    HttpResponse, Responder, get, post,
+    web::{self},
+};
 use handlebars::Handlebars;
 use rand::{self, RngExt};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 pub fn generate_key() -> String {
     let code: u32 = rand::rng().random_range(0..=999999);
     format!("{:06}", code)
 }
 
-pub fn parse_action(form: &FormData) -> Result<Action, &'static str> {
-    match (&form.object, &form.key) {
-        (Some(o), Some(k)) if !o.trim().is_empty() && k.trim().is_empty() => {
-            Ok(Action::Send(o.clone()))
-        }
-        (Some(o), Some(k)) if !k.trim().is_empty() && o.trim().is_empty() => {
-            Ok(Action::Retrieve(k.clone()))
-        }
-        (Some(_), Some(_)) => Err("Provide either text OR key, not both."),
-        _ => Err("Invalid input."),
-    }
+#[derive(Serialize)]
+pub struct HomePageData {}
+
+#[get("/")]
+pub async fn index(hb: web::Data<Handlebars<'static>>) -> impl Responder {
+    let body = hb.render("index", &HomePageData {}).unwrap(); // FIXME: remove unwrap
+    HttpResponse::Ok().body(body)
 }
 
-#[derive(Serialize)]
-struct IndexTemplate {
-    error: Option<String>,
-    success: Option<String>,
-    object: Option<String>,
+#[get("/about")]
+pub async fn about(hb: web::Data<Handlebars<'static>>) -> impl Responder {
+    let body = hb.render("about", &HomePageData {}).unwrap(); // FIXME: remove unwrap
+    HttpResponse::Ok().body(body)
+}
+
+#[get("/faqs")]
+pub async fn faqs(hb: web::Data<Handlebars<'static>>) -> impl Responder {
+    let body = hb.render("faqs", &HomePageData {}).unwrap(); // FIXME: remove unwrap
+    HttpResponse::Ok().body(body)
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct SendObjectJsonRequestData {
+    object: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct SendObjectJsonResponseData {
+    success: bool,
     key: Option<String>,
 }
 
-#[post("/")]
-pub async fn handle_form(
-    form: web::Form<FormData>,
-    hb: web::Data<Handlebars<'static>>,
+#[post("/send")]
+pub async fn send_object(
+    json: web::Json<SendObjectJsonRequestData>,
     store: web::Data<DynStore>,
 ) -> impl Responder {
-    match parse_action(&form) {
-        Ok(Action::Send(text)) => {
-            let new_key = generate_key();
-            store.set(new_key.clone(), text, Some(300)).await.unwrap();
-            let body = hb
-                .render(
-                    "index",
-                    &IndexTemplate {
-                        key: Some(new_key.clone()),
-                        error: None,
-                        success: Some(String::from("")),
-                        object: None,
-                    },
-                )
-                .unwrap();
-            HttpResponse::Ok().body(body)
-        }
-        Ok(Action::Retrieve(key)) => {
-            if let Ok(Some(val)) = store.get(&key).await {
-                store.delete(&key).await.unwrap();
-                let body = hb
-                    .render(
-                        "index",
-                        &IndexTemplate {
-                            key: None,
-                            error: None,
-                            success: None,
-                            object: Some(val.clone()),
-                        },
-                    )
-                    .unwrap();
-                HttpResponse::Ok().body(body)
-            } else {
-                let body = hb
-                    .render(
-                        "index",
-                        &IndexTemplate {
-                            key: None,
-                            error: Some(String::from("Object not found")),
-                            success: None,
-                            object: None,
-                        },
-                    )
-                    .unwrap();
-                HttpResponse::Ok().body(body)
-            }
-        }
-        Err(msg) => {
-            let body = hb
-                .render(
-                    "index",
-                    &IndexTemplate {
-                        key: None,
-                        error: Some(String::from(msg)),
-                        success: None,
-                        object: None,
-                    },
-                )
-                .unwrap();
-            HttpResponse::Ok().body(body)
-        }
+    let object = json.object.clone();
+    let new_key = generate_key();
+    store.set(new_key.clone(), object, Some(300)).await.unwrap();
+    HttpResponse::Ok().json(SendObjectJsonResponseData {
+        key: Some(new_key),
+        success: true,
+    })
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct RetrieveObjectJsonRequestData {
+    key: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct RetrieveObjectJsonResponseData {
+    success: bool,
+    object: Option<String>,
+    error: Option<String>,
+}
+#[post("/retrieve")]
+pub async fn retrieve_object(
+    json: web::Json<RetrieveObjectJsonRequestData>,
+    store: web::Data<DynStore>,
+) -> impl Responder {
+    let key = json.key.clone();
+    if let Ok(Some(o)) = store.get(&key).await {
+        HttpResponse::Ok().json(&RetrieveObjectJsonResponseData {
+            success: true,
+            object: Some(o),
+            error: None,
+        })
+    } else {
+        HttpResponse::NotFound().json(&RetrieveObjectJsonResponseData {
+            success: false,
+            object: None,
+            error: Some(format!("Object not found")),
+        })
     }
 }
 
-#[get("/")]
-pub async fn index(hb: web::Data<Handlebars<'static>>) -> HttpResponse {
-    let data = IndexTemplate {
-        error: None,
-        success: None,
-        object: None,
-        key: None,
-    };
-
-    let body = hb.render("index", &data).unwrap(); // FIXME: remove unwrap
-    HttpResponse::Ok().body(body)
+#[get("/count")]
+pub async fn count(store: web::Data<DynStore>) -> impl Responder {
+    let total = store.count().await.unwrap();
+    HttpResponse::Ok().body(format!("{}", total))
 }

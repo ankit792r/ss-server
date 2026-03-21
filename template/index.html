@@ -9,31 +9,22 @@
         fast sharing.
       </p>
 
-      {{#if error}}
-      <article style="background-color: #ffdddd">
-        <strong>Error:</strong> {{error}}
-      </article>
-      {{/if}} {{#if success}}
-      <article style="background-color: #ddffdd">
-        <strong>Success:</strong> {{success}}
-      </article>
-      {{/if}}
+      <div id="messageBox" style="display: none"></div>
 
-      <form method="post" action="/">
-        <label>Enter Text to Share</label>
+      <form method="post" id="form">
+        <label>Enter String Object to Share</label>
         <textarea
           placeholder="Paste or type your text here..."
           rows="4"
           name="object"
-        >
-{{object}}</textarea
-        >
+          id="objectInput"
+        ></textarea>
 
         <label>Enter Key to Retrieve</label>
         <input
           type="text"
           name="key"
-          value="{{key}}"
+          id="keyInput"
           placeholder="Enter 6-digit key"
         />
 
@@ -43,7 +34,7 @@
 
     <div>
       <img
-        src="https://images.unsplash.com/photo-1555949963-aa79dcee981c"
+        src="/static/hero.png"
         alt="Sharing Illustration"
       />
     </div>

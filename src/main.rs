@@ -9,7 +9,7 @@ mod store;
 
 use crate::{
     defs::DynStore,
-    route::{handle_form, index},
+    route::{about, count, faqs, index, retrieve_object, send_object},
     store::memory::InMemoryStore,
 };
 
@@ -27,10 +27,15 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
+            .service(actix_files::Files::new("/static", "statics"))
             .app_data(web::Data::new(handlebars.clone()))
             .app_data(web::Data::new(data_store.clone()))
             .service(index)
-            .service(handle_form)
+            .service(about)
+            .service(faqs)
+            .service(count)
+            .service(send_object)
+            .service(retrieve_object)
     })
     .bind(("127.0.0.1", 4096))?
     .run()

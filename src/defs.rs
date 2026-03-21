@@ -1,18 +1,6 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use serde::Deserialize;
-
-#[derive(Deserialize, Debug)]
-pub struct FormData {
-    pub object: Option<String>,
-    pub key: Option<String>,
-}
-
-pub enum Action {
-    Send(String),
-    Retrieve(String),
-}
 
 #[async_trait]
 pub trait DataStore: Send + Sync {

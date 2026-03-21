@@ -7,6 +7,10 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
     />
+
+
+    <link rel="icon" type="image/png" href="/static/logo.avif">
+
     <style>
       .hero {
         display: grid;
@@ -15,16 +19,21 @@
         align-items: center;
       }
 
-      @media (min-width: 768px) {
-        .hero {
-          grid-template-columns: 1fr 1fr;
-        }
-      }
-
       .hero img {
         width: 100%;
         border-radius: 12px;
+        display: none;
       }
+
+      @media (min-width: 1024px) {
+        .hero {
+          grid-template-columns: 1fr 1fr;
+        }
+        .hero img {
+          display: block; /* 👈 show on tablet/desktop */
+        }
+      }
+
 
     </style>
   </head>
@@ -35,4 +44,6 @@
 
     {{> partials/footer}}
   </body>
+
+  <script src="/static/scripts.js"></script>
 </html>
