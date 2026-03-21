@@ -11,8 +11,12 @@ pub fn generate_key() -> String {
 
 pub fn parse_action(form: &FormData) -> Result<Action, &'static str> {
     match (&form.object, &form.key) {
-        (Some(t), None) if !t.trim().is_empty() => Ok(Action::Send(t.clone())),
-        (None, Some(k)) if !k.trim().is_empty() => Ok(Action::Retrieve(k.clone())),
+        (Some(o), Some(k)) if !o.trim().is_empty() && k.trim().is_empty() => {
+            Ok(Action::Send(o.clone()))
+        }
+        (Some(o), Some(k)) if !k.trim().is_empty() && o.trim().is_empty() => {
+            Ok(Action::Retrieve(k.clone()))
+        }
         (Some(_), Some(_)) => Err("Provide either text OR key, not both."),
         _ => Err("Invalid input."),
     }
@@ -22,17 +26,16 @@ pub fn parse_action(form: &FormData) -> Result<Action, &'static str> {
 struct IndexTemplate {
     error: Option<String>,
     success: Option<String>,
-    text: Option<String>,
+    object: Option<String>,
     key: Option<String>,
 }
 
 #[post("/")]
 pub async fn handle_form(
     form: web::Form<FormData>,
-    hb: web::Data<Handlebars<'_>>,
+    hb: web::Data<Handlebars<'static>>,
     store: web::Data<DynStore>,
 ) -> impl Responder {
-    println!("{:?}", &form);
     match parse_action(&form) {
         Ok(Action::Send(text)) => {
             let new_key = generate_key();
@@ -44,7 +47,7 @@ pub async fn handle_form(
                         key: Some(new_key.clone()),
                         error: None,
                         success: Some(String::from("")),
-                        text: None,
+                        object: None,
                     },
                 )
                 .unwrap();
@@ -60,7 +63,7 @@ pub async fn handle_form(
                             key: None,
                             error: None,
                             success: None,
-                            text: Some(val.clone()),
+                            object: Some(val.clone()),
                         },
                     )
                     .unwrap();
@@ -73,7 +76,7 @@ pub async fn handle_form(
                             key: None,
                             error: Some(String::from("Object not found")),
                             success: None,
-                            text: None,
+                            object: None,
                         },
                     )
                     .unwrap();
@@ -88,7 +91,7 @@ pub async fn handle_form(
                         key: None,
                         error: Some(String::from(msg)),
                         success: None,
-                        text: None,
+                        object: None,
                     },
                 )
                 .unwrap();
@@ -98,11 +101,11 @@ pub async fn handle_form(
 }
 
 #[get("/")]
-pub async fn index(hb: web::Data<Handlebars<'_>>) -> HttpResponse {
+pub async fn index(hb: web::Data<Handlebars<'static>>) -> HttpResponse {
     let data = IndexTemplate {
         error: None,
         success: None,
-        text: None,
+        object: None,
         key: None,
     };
 

@@ -13,3 +13,4 @@ mongodb = "3"
 async-trait = "0.1.89"
 anyhow = "1.0.102"
 redis = "1.0.5"
+chrono = { version = "0.4.44", features = ["serde"] }
