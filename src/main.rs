@@ -1,17 +1,16 @@
 use std::sync::Arc;
 
 use actix_web::{App, HttpServer, middleware::Logger, web};
+use actix_web_ratelimit::{RateLimit, config::RateLimitConfig, store::MemoryStore};
 use env_logger::Env;
 use handlebars::{DirectorySourceOptions, Handlebars};
 
-mod defs;
 mod route;
 mod store;
 
 use crate::{
-    defs::DynStore,
     route::{about, count, exists, faqs, index, retrieve_object, send_object},
-    store::memory::InMemoryStore,
+    store::{DynStore, memory::InMemoryStore},
 };
 
 #[actix_web::main]
@@ -25,6 +24,9 @@ async fn main() -> std::io::Result<()> {
         .expect("Failed to register handlebars");
 
     let data_store: DynStore = Arc::new(InMemoryStore::new());
+
+    let rate_limit_config = RateLimitConfig::default().window_secs(60).max_requests(7);
+    let rate_limit = Arc::new(RateLimit::new(rate_limit_config, MemoryStore::new()));
 
     env_logger::init_from_env(Env::default().default_filter_or("info"));
 
@@ -41,6 +43,7 @@ async fn main() -> std::io::Result<()> {
             .service(send_object)
             .service(retrieve_object)
             .wrap(Logger::default())
+            .wrap(rate_limit.clone())
     })
     .bind(("127.0.0.1", 4096))?
     .run()

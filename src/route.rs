@@ -1,4 +1,3 @@
-use crate::defs::DynStore;
 use actix_web::{
     HttpResponse, Responder, get, post,
     web::{self},
@@ -6,6 +5,8 @@ use actix_web::{
 use handlebars::Handlebars;
 use rand::{self, RngExt};
 use serde::{Deserialize, Serialize};
+
+use crate::store::DynStore;
 
 pub fn generate_key() -> String {
     let code: u32 = rand::rng().random_range(0..=999999);
