@@ -8,8 +8,7 @@ rand = { version = "0.10.0" }
 actix-web = "4"
 handlebars = { version = "6.4.0", features = [ "dir_source" ]} 
 async-trait = "0.1.89"
-redis = { version = "1.0.5", features = ["aio", "tokio-comp"] }
 serde = { version = "1.0.228", features = ["derive"] }
 actix-files = "0.6.10"
 env_logger = "0.11.9"
-actix-web-ratelimit = { version = "0.1.2", features = ["redis"] }
+actix-web-ratelimit = { version = "0.1.2" }
