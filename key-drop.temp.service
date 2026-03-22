@@ -1,0 +1,14 @@
+## /etc/systemd/system/key-drop.service
+
+[Unit]
+Description=KeyDrop web service
+After=network.target
+
+[Service]
+User=$USER
+WorkingDirectory=/home/$USER/key-drop
+ExecStart=/home/$USER/key-drop/dist/key-drop
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
