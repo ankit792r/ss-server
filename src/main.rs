@@ -25,7 +25,7 @@ async fn main() -> std::io::Result<()> {
 
     let data_store: DynStore = Arc::new(InMemoryStore::new());
 
-    let rate_limit_config = RateLimitConfig::default().window_secs(60).max_requests(7);
+    let rate_limit_config = RateLimitConfig::default().window_secs(60).max_requests(10);
     let rate_limit = Arc::new(RateLimit::new(rate_limit_config, MemoryStore::new()));
 
     env_logger::init_from_env(Env::default().default_filter_or("info"));

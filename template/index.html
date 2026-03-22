@@ -1,4 +1,18 @@
 {{#> layout}}
+<style>
+  .label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    <!-- margin-bottom: 0.25rem; -->
+  }
+
+  .label-row button {
+    padding: 0.20rem 0.6rem;
+    font-size: 0.6rem;
+  }
+</style>
+
 <main class="container">
   <section class="hero">
     <div>
@@ -12,7 +26,17 @@
       <div id="messageBox" style="display: none"></div>
 
       <form method="post" id="form">
-        <label>Enter String Object to Share</label>
+        <div class="label-row">
+          <label for="objectInput">Enter String Object to Share</label>
+          <button
+            type="button"
+            id="copyObjectBtn"
+            class="secondary outline"
+            style="display: none"
+          >
+            📋 Copy
+          </button>
+        </div>
         <textarea
           placeholder="Paste or type your text here..."
           rows="4"
@@ -20,7 +44,17 @@
           id="objectInput"
         ></textarea>
 
-        <label>Enter Key to Retrieve</label>
+        <div class="label-row">
+          <label for="keyInput">Enter Key to Retrieve</label>
+          <button
+            type="button"
+            id="copyKeyBtn"
+            class="secondary outline"
+            style="display: none"
+          >
+            📋 Copy
+          </button>
+        </div>
         <input
           type="text"
           name="key"
@@ -33,10 +67,7 @@
     </div>
 
     <div>
-      <img
-        src="/static/hero.png"
-        alt="Sharing Illustration"
-      />
+      <img src="/static/hero.png" alt="Sharing Illustration" />
     </div>
   </section>
 
