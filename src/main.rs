@@ -10,7 +10,7 @@ mod store;
 
 use crate::{
     defs::DynStore,
-    route::{about, count, faqs, index, retrieve_object, send_object},
+    route::{about, count, exists, faqs, index, retrieve_object, send_object},
     store::memory::InMemoryStore,
 };
 
@@ -37,6 +37,7 @@ async fn main() -> std::io::Result<()> {
             .service(about)
             .service(faqs)
             .service(count)
+            .service(exists)
             .service(send_object)
             .service(retrieve_object)
             .wrap(Logger::default())

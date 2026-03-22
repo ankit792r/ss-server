@@ -76,6 +76,7 @@ pub async fn retrieve_object(
 ) -> impl Responder {
     let key = json.key.clone();
     if let Ok(Some(o)) = store.get(&key).await {
+        store.delete(&key).await.unwrap();
         HttpResponse::Ok().json(&RetrieveObjectJsonResponseData {
             success: true,
             object: Some(o),
@@ -88,6 +89,17 @@ pub async fn retrieve_object(
             error: Some(format!("Object not found")),
         })
     }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ObjectQuery {
+    key: String,
+}
+
+#[get("/exists")]
+pub async fn exists(query: web::Query<ObjectQuery>, store: web::Data<DynStore>) -> impl Responder {
+    let res = store.exists(&query.key).await.unwrap();
+    HttpResponse::Ok().body(format!("{}", res))
 }
 
 #[get("/count")]
